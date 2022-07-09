@@ -36,7 +36,7 @@
     "producer",
     "consumer"
   ],
-  "author": "xampy",
+  "author": "Yao Maxime KAYI(xampydev@gmail.com)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/klustQ/klustq-node-client/issues"
