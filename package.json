@@ -9,20 +9,20 @@
     "test": "tests"
   },
   "dependencies": {
-    "combined-stream": "^1.0.8",
+    "@stomp/stompjs": "^6.1.2",
+    "asynckit": "^0.4.0",
     "axios": "^0.27.2",
     "bufferutil": "^4.0.6",
-    "asynckit": "^0.4.0",
+    "combined-stream": "^1.0.8",
     "delayed-stream": "^1.0.0",
     "follow-redirects": "^1.15.1",
-    "mime-db": "^1.52.0",
     "form-data": "^4.0.0",
+    "mime-db": "^1.52.0",
     "mime-types": "^2.1.35",
     "node-gyp-build": "^4.5.0",
-    "ws": "^8.8.0",
-    "utf-8-validate": "^5.0.9"
+    "utf-8-validate": "^5.0.9",
+    "ws": "^8.8.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "npm jest"
   },
