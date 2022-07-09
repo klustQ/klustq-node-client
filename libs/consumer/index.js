@@ -40,13 +40,23 @@ class QConsumer extends EventEmitter {
       this.client.on("message", (message) => {
         this.emit("message", message);
       });
+
       this.client.on('error', (err) => {
         this.disconnect();
       });
 
+      this.client.on("server-disconnected-consumer", () => {
+        this.disconnect();
+
+        setTimeout(() => {
+          console.debug("....Reconnecting to server...");
+          this.connect()
+        }, 5000); //Connect after 5 seconds
+      });
+
       this.client.setHandlers();
       this.client.connect();
-      
+
     } catch (error) {
       console.log(error);
       //throw error;

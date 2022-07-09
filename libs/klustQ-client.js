@@ -9,6 +9,8 @@ const UserQueueMessageChannel = require('./channels/user-queue.messages.channel'
 const UserTopicPrivateChannel = require("./channels/user-topic.private");
 const AppConsumerChannel = require("./channels/app-consume.channel");
 const { CONSUMER_PARTICIPANT_TYPE, PRODUCER_PARTICIPANT_TYPE } = require("./participant");
+const ConsumerDisconnectedEvent = require("./events/consumer-disconnected-event");
+const ConsumerUpdatedTtlEvent = require("./events/consumer-updated-ttl-event");
 
 /**
  * @class KlustQ_Client wraps consumer and producer into one element
@@ -26,6 +28,8 @@ class KlustQ_Client extends Client {
     this.options = options;
     this.consumerId = null;
     this.sessionId = null;
+
+    this.ttlHandlerIntervalRef = null;
 
     //Listener to the client events
     this.on('connection', (...args) => {
@@ -66,7 +70,7 @@ class KlustQ_Client extends Client {
       // Do something, all subscribes must be done is this callback
       // This is needed because this will be executed after a (re)connect
 
-      console.log(frame);
+      //console.log(frame);
       this.emit('connection');
 
       console.debug(`Subscribing to ${TopicBroadcastChannel.path} channel`);
@@ -92,7 +96,7 @@ class KlustQ_Client extends Client {
         this.subscriptions.push(
           this.stompClient.subscribe(UserQueueMessageChannel.path, (message) => {
             //console.log(message);
-            console.log(message.body);
+            //console.log(message.body);
             let d = JSON.parse(message.body)
             //Tells that we have a record from the broker
             this.emit("message", d);
@@ -129,6 +133,30 @@ class KlustQ_Client extends Client {
           } else if (msg.event == ConsumerSubscibedEvent.name) {
             this.canConsume = true;
             this.consumerId = msg.client_id;
+
+            //We start sending ttl health message to server in order to keep us
+            //alive
+            //To be cleared at deconnection
+            console.debug("...Sending health...")
+            this.stompClient.publish({
+              destination: '/app/topic/ttl',
+              body: 'Health',
+              headers: { priority: '9' }
+            });
+            this.ttlHandlerIntervalRef = setInterval(() => {
+              console.debug("...Senfing health...");
+              this.stompClient.publish({
+                destination: '/app/topic/ttl',
+                body: 'Health',
+                headers: { priority: '9' }
+              });
+            }, 28 * 1000); //every 28 seconds because the server do a check each 30 seconds
+
+          } else if (msg.event == ConsumerDisconnectedEvent.name) {
+            //We are stilling alive therefore we reconnect to the server
+            this.emit("server-disconnected-consumer");
+          } else if (msg.event == ConsumerUpdatedTtlEvent.name) {
+            console.log("-> Health Beat <-");
           }
         })
       );
@@ -177,7 +205,7 @@ class KlustQ_Client extends Client {
           headers: {
             "content-type": "application/json",
             "Content-Type": "application/json"
-          },    
+          },
           data: {
             topic: topic,
             consumer_id: this.consumerId,
@@ -192,6 +220,8 @@ class KlustQ_Client extends Client {
       }
     }
 
+    //Clear the interval
+    if (this.ttlHandlerIntervalRef != null) clearInterval(this.ttlHandlerIntervalRef);
     super.destroy();
   }
 }

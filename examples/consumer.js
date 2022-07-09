@@ -28,5 +28,5 @@ consumer.on("message", (message) => {
 
 setTimeout(() => {
   consumer.disconnect();
-}, 10 * 60 * 1000); //10 minutes
+},  60* 1000 * 1); //10 minutes
 consumer.connect();
