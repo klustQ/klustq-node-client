@@ -1,6 +1,6 @@
 {
   "name": "@klustq/klustq-node-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A client to set up on a node application in order to exchange with KlustQ server",
   "main": "index.js",
   "directories": {
