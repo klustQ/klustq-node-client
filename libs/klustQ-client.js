@@ -192,6 +192,27 @@ class KlustQ_Client extends Client {
   }
 
   /**
+   * Build a topic on the broker. Usually used when
+   * the current client is a consumer and
+   * 
+   * @param {string} topic 
+   */
+  buildTopic(topic) {
+    console.debug("Building topic..");
+    return new Promise((resolve, reject) => {
+      axios.post(
+        `http://${this.options.host}:${this.options.port}/broker/topics?name=${topic}`
+      )
+        .then((response) => {
+          resolve(null);
+        })
+        .catch((error) => {
+          resolve(null);
+        });
+    });
+  }
+
+  /**
    * Disconnect the current client from the broker
    * 
    * @param {string} topic

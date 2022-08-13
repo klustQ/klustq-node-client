@@ -26,6 +26,10 @@ class QConsumer extends EventEmitter {
    */
   async connect() {
     try {
+      try {
+        await this.client.buildTopic(this.options.topic);  
+      } catch (error) {}
+
       const sessionId = await this.client.fetchSessionId(this.options.topic);
       console.log("Consumer Got Session id: " + sessionId);
 
